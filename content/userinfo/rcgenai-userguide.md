@@ -15,7 +15,7 @@ type = "rivanna"
 * [Getting Started](#getting-started)
 * [Using the Browser Interface](#using-the-browser-interface-openwebui)
 * [API Access](#api-access)
-* [Policies and Limiatations](#policies-and-limitations)
+* [Policies and Limitations](#policies-and-limitations)
 * [Frequently Asked Questions](#frequently-asked-questions)
 
 - - -
@@ -79,7 +79,7 @@ You will have the option to view, copy or create a new API key.
 
 ## Securely storing  your key
 
-Use environment variables to safely store your key (e.g., `export  UVARC_GenAI_API ="your-key-here"`). Make sure to never commit keys to code repositories, and regenerate keys in   UVA RC GenAI browser if compromised. 
+Use environment variables to safely store your key (e.g., `export  UVARC_GenAI_API="your-key-here"`). Make sure to never commit keys to code repositories, and regenerate keys in   UVA RC GenAI browser if compromised. 
 
 **Please note that to run your code you need to be on a HPC compute node.** 
 
@@ -88,7 +88,7 @@ Use environment variables to safely store your key (e.g., `export  UVARC_GenAI_A
 **curl**
 
 ```bash
-export  UVARC_GenAI_API ="<yourAPIkey>" 
+export  UVARC_GenAI_API="<yourAPIkey>" 
 curl -X POST "https://open-webui.rc.virginia.edu/api/chat/completions" \ 
      -H "Authorization: Bearer $UVARC_GenAI_API" \ 
      -H "Content-Type: application/json" \ 
@@ -103,7 +103,7 @@ import openai
  
 client = openai.OpenAI( 
     base_url="https://open-webui.rc.virginia.edu/api/", 
-    api_key=os.environ.get(" UVARC_GenAI_API  ") 
+    api_key=os.environ.get("UVARC_GenAI_API") 
 ) 
  
 response = client.chat.completions.create( 
@@ -142,7 +142,7 @@ response = requests.post(
 
 - **Restricted:** No [Highly Sensitive](https://security.virginia.edu/definitions/highly-sensitive-data), [PHI](https://hrpp.research.virginia.edu/teams/irb-hsr/researcher-guide-irb-hsr/protected-health-information-hipaa-regulations-and-research), or other controlled access data types. 
 
-- **When in doubt:** Contact us for (support)[https://www.rc.virginia.edu/support] before submitting 
+- **When in doubt:** Contact us for [support](https://www.rc.virginia.edu/support) before submitting 
 
 ## Where can I find information on University GenAI Usage policies: 
 
@@ -152,7 +152,7 @@ UVA RC GenAI aligns with the University’s GenAI Use Guidelines. These can be f
 
 - NOT  prompts or responses 
 
-- Metadata may be retained for to better understand number of users, number of request, demand for service, tokens generated and other metrics that will aid in ensuring a quality deliver of service. 
+- Metadata may be retained for to better understand number of users, number of request, demand for service, tokens generated and other metrics that will aid in ensuring a quality delivery of service. 
 
 - Logs are accessible to admins only 
 
@@ -170,11 +170,11 @@ Rate limits: 60 requests per minute
 
 ## Can I use OpenWebUI to access other LLM models? 
 
-No, to help researchers adhere to UVA AI and data policy this feature has been disabled with the Beta Release.AI 
+No, to help researchers adhere to UVA AI and data policy this feature has been disabled with the Beta Release.
 
 ## Why can’t I sign out using the WebUI sign out button? 
 
-Due to Single Sign On configurations this feature is not available. However, closing out he browser page should be sufficient.
+Due to Single Sign On configurations this feature is not available. However, closing out the browser page should be sufficient.
 
 ## I lost my chat history. Can I get it back?
 
