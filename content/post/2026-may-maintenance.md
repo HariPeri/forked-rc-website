@@ -2,7 +2,7 @@
 images = [""]
 author = "Staff"
 description = ""
-date = "2026-05-24T00:00:00-05:00"
+date = "2026-05-12T00:00:00-05:00"
 title = "HPC Maintenance: May 26, 2026"
 draft = false
 tags = ["rivanna", "afton"]
@@ -15,20 +15,62 @@ All systems are expected to return to service by **Wednesday, May 27** at 6 am.
 
 ## IMPORTANT MAINTENANCE NOTES
 
-### What to Expect During Maintenance  
+As part of this maintenance, we will: 
+
+- Upgrade the Open OnDemand and Slurm scheduler  
+
+- Introduce significant updates to compiler and container toolchains 
+
+- Add a new RTX 6000 Pro GPU node to the gpu-mig partition as part of our ongoing efforts to improve GPU resource availability and reduce wait times  
+
+### What to Expect During Maintenance
+
+**Access:**
+
+You will not be able to log in or use the HPC systems, including Open OnDemand and FastX, between **6 a.m. Tuesday, May 26, to 6 a.m. Wednesday, May 27**. 
+
+**Jobs:**
+
+You can submit jobs until maintenance begins. If the scheduler determines that a job cannot finish before maintenance starts, it will be held in the queue and will automatically start once the system is back online. **No jobs will run during maintenance.** 
+
+
+**Storage:**
+
+Research Standard and Research Project storage will remain accessible via Globus, Server Message Block (SMB), and Network File System (NFS) mounts. However, access to Research Project storage may be temporarily disrupted during the maintenance window. In general, take note of the following: 
+
+- You can continue to access files from other systems (e.g., your computer) if mounts are set up. 
+
+- You cannot access files through the HPC interface during maintenance. 
+
+- The Data Transfer Nodes (DTNs) stay online for ongoing data transfers through Globus. 
+
+### Improving GPU Resource Availability 
+
+To improve access to GPU resources, RC previously introduced the gpu-mig partition using NVIDIA MIG technology to divide A100 80GB GPUs into smaller instances. Since the existing 10 GB GPU slices are insufficient for many workloads, RC has added a new RTX 6000 Pro GPU node that provides 32 GPU instances, each with 24 GB of GPU memory. Following maintenance, the RTX node will replace the current A100 node in the gpu-mig partition, and the A100 node will be returned to the main gpu partition. 
+
+**What this means for you:** Run smaller GPU jobs with less queue delays — and without using any Service Units (SUs). 
+
+[See how to submit a job to the gpu-mig partition.](https://www.rc.virginia.edu/userinfo/hpc/slurm/#mig-gpu-partition) 
 
 ### System
 
+The NVIDIA driver will be upgraded to 595.71.05 to support CUDA 13.2. See section on NVHPC below.
+
+Open OnDemand will be ugpraded to 4.1.5.
+
+- Code Server will be upgraded to 4.115.0.
+- JupyterLab will be upgraded to 4.5.6-py3.13.
+- RStudio Server will be upgraded to 2026.04.0 (R 4.6.0).
+
 ### Modules
 
-There are major changes to compiler and container toolchains (GCC, NVHPC, Apptainer). Users should read the corresponding sections carefully if applicable.
+There are major changes to compiler and container toolchains (GCC, Intel, NVHPC, Apptainer). Users should read the corresponding sections carefully if applicable.
 
 #### GCC
 
 GCC 14.2.0 will become the new default. Most modules under 11.4.0 will be migrated under 14.2.0. Some of the most important upgrades include:
-- bcftools|htslib|samtools/1.23
-- mariadb/11.8.3 (new)
-- postgresql/18.1
+
+- bcftools, htslib, samtools/1.23
 - python/3.13.11
 - R/4.6.0
 - rust/1.92.0
@@ -41,11 +83,22 @@ Some specifics:
 - [R] Apart from the removal of 4.3.1, existing R versions will remain under GCC 11.4.0, so that users won't have to reinstall their R libraries. Starting from 4.6.0, R will be built under 14.2.0. (We have prepared a script to help you transition to 4.6. See section below for more information.)
 - [Berkeley DB] `berkeley_db` will be renamed to `db`.
 - [Boost] Starting from version 1.88.0, the MPI-enabled module name will be `boost.mpi`. The non-MPI module name will be `boost`.
-- [CUDA] Modules that depend on CUDA 12.x will be consolidated to 12.8.0, except Amber 24 will be rebuilt with `cuda/12.4.1` due to limitations. `cuda/12.2.2` will be removed. If you built your own CUDA code with these versions, check if they run fine under 12.8.0. You may not need to rebuild.
+- [CUDA] Modules that depend on CUDA 12.x will be consolidated to 12.8.0. `cuda/12.2.2` will be removed. If you built your own CUDA code with these versions, check if they run fine under 12.8.0. You may not need to rebuild.
 - [SRA Toolkit] `sratoolkit` will be renamed to `sra-toolkit`.
 - [wigToBigWig/Kent Tools] `wigtobigwig` will be absorbed into `kent-tools/487`. Note the change in the version format of the latter.
 
 GCC 12.4.0 and all modules under it will be removed. 
+
+#### Intel
+
+Intel 2025.3 will become the new default. Most modules under 2023.1 and 2025.0 will be migrated under 2025.3. Some of the most important upgrades include:
+
+- cp2k/2026.1
+- elpa/2025.06.002
+- libxc/7.0.0
+- siesta/5.4.2
+
+A module that is not migrated may exist under GCC (e.g. spglib) or NVHPC (e.g. gromacs). If not, it should be seen as deprecated, meaning it will be removed with the Intel 2023.1 and 2025.0 toolchains in the future, but not during this maintenance. Deprecated modules are listed at the end. If you still need to use these modules, please let us know as soon as possible.
 
 #### NVHPC
 
@@ -88,61 +141,85 @@ The modules to be removed during this maintenance are listed below.
 {{< table title="replacement" class="table table-striped" >}}
 | Module | Remove | Replace with |
 |---|---|---|
-|amber                    |24-CUDA-12.2.2 |24-CUDA-12.4.1 |
-|apptainer                |1.3.4   |1.4.5 |
-|cellassign               |0.99.2  |-|
-|cellpose                 |3.0.10  |4.0.5+ |
-|clara-parabricks         |4.2.0   |4.6.0 |
-|cuda                     |12.2.2  |12.4.1+ |
-|cudnn                    |8.9.4.25| 9+ |
-|cumulus_feature_barcoding|0.10.0  |-|
-|danpos                   |2.2.2   |-|
-|gcc                      |12.4.0  |14.2.0 (default), 11.4.0 (legacy) |
-|gdb                      |13.1-py3.11|16.3 |
-|gromacs                  |2023.2, 2025.1  |2025.3 (cpu), 2026.0 (gpu) |
-|gsea                     |4.3.3   |4.4.0 |
+|amber                    |24-CUDA-12.2.2        |26-CUDA-12.8.0 |
+|apptainer                |1.3.4                 |1.4.5 |
+|blender                  |3.6.17                |5.0.1 |
+|busco                    |5.8.2                 |6.0.0 |
+|cellassign               |0.99.2                |-|
+|cellranger               |9.0.1                 |10.0.0 |
+|cellpose                 |3.0.10                |4.0.5+ |
+|chemps2                  |1.8.12                |- |
+|clara-parabricks         |4.2.0                 |4.6.0 |
+|cmake                    |4.0.0, 4.1.2          |4.2.2 |
+|code-server              |4.99.1                |4.115.0 |
+|cuda                     |12.2.2                |12.4.1+ |
+|cudnn                    |8.9.4.25              | 9+ |
+|cumulus_feature_barcoding|0.10.0                |-|
+|danpos                   |2.2.2                 |-|
+|gcc                      |12.4.0                |14.2.0 (default), 11.4.0 (legacy) |
+|gdb                      |13.1-py3.11           | 16.3 |
+|go                       |1.23.6                |1.26.2 |
+|gromacs                  |2023.2, 2025.1        | 2025.3 (cpu), 2026.0 (gpu) |
+|grass                    |8.2.1, 8.4.1          | 8.4.2 |
+|gsea                     |4.3.3                 |4.4.0 |
+|itk                      |5.3.0                 |- |
+|jupyterlab               |4.4.6-py3.12          |4.5.6-py3.13 |
 |libtorch                 |2.1.1, 2.4.1-precxx11 | 2.7.1 |
-|metamorpheus             |0.0.320 |-|
-|nanopolish               |0.13.2  |-|
-|nccl                     |2.18.3, 2.21.5 | 2.22.3+ |
-|nibabies                 |22.1.3  |-|
-|nvhpc                    |24.5    |25.3+ |
-|openmm                   |7.5.0   |-|
-|peer                     |1.3     |-|
-|R                        |4.3.1   |4.4.1+ |
-|rmats-turbo              |4.1.1   |-|
-|skopeo                   |1.13.1  |-|
-|subversion               |1.14.0  |-|
-|thermorawfileparser      |1.3.4   |-|
-|tensorrt                 |10.0.1  |-|
-|ucc-cuda                 |1.2.0-CUDA-12.2.2 | 1.3.0-CUDA-12.8.0 |
-|ucx-cuda                 |1.15.0  |1.18.0+ |
-|vg                       |1.22.0  |-|
+|matlab                   |R2017a, R2023a, R2023b, R2024a, R2024b | R2025a+ |
+|metamorpheus             |0.0.320               |-|
+|nanopolish               |0.13.2                |-|
+|nccl                     |2.18.3, 2.21.5        | 2.22.3+ |
+|nextflow                 |25.04.6               |25.10.4 |
+|nibabies                 |22.1.3                |-|
+|nvhpc                    |24.5                  |25.3+ |
+|ollama                   |0.13.1                |0.23.4 |
+|openmm                   |7.5.0                 |-|
+|peer                     |1.3                   |-|
+|R                        |4.3.1                 |4.4.1+ |
+|rapidsai                 |25.06                 |26.02 |
+|rmats-turbo              |4.1.1                 |-|
+|skopeo                   |1.13.1                |-|
+|snakemake                |9.8.1                 |9.19.0 |
+|subversion               |1.14.0                |-|
+|thermorawfileparser      |1.3.4                 |-|
+|tensorrt                 |10.0.1                |-|
+|tmux                     |3.4, 3.5a             |3.6a |
+|ucc-cuda                 |1.2.0-CUDA-12.2.2     | 1.3.0-CUDA-12.8.0 |
+|ucx-cuda                 |1.15.0                |1.18.0+ |
+|unrar                    |6.0.2                 |7.21 |
+|vg                       |1.22.0                |-|
 {{< /table >}}
 
-#### Deprecated modules under GCC 11.4.0
+#### Deprecated modules
 
-Deprecated modules under GCC 11.4.0 are listed alphabetically below. They will not be removed during this maintenance.
+Deprecated GCC and Intel modules are listed alphabetically below. They will not be removed during this maintenance.
 
-- Non-MPI
+- gcc/11.4.0
+    - Non-MPI
 
-    ```
-    abseil bart-mri bedops canu circos eigensoft
-    g2clib g2lib gd gemma grackle
-    lapack libibmad libibumad libmatheval libmcfp libtorch libxml++
-    mm-common mrc mrtrix3tissue nlopt
-    pasapipeline protobuf protobuf-python qwt
-    seqoutbias shapeit4 shapelib
-    tensorrt viennarna xxdiff
-    ```
+        ```
+        abseil bart-mri bedops canu circos eigensoft
+        g2clib g2lib gd gemma grackle
+        lapack libibmad libibumad libmatheval libxml++
+        mm-common mrtrix3tissue nlopt
+        pasapipeline protobuf protobuf-python qwt
+        seqoutbias shapeit4 shapelib trinity
+        viennarna xxdiff
+        ```
+    - MPI
 
-- MPI
-
-    ```
-    attrdict3 chemps2 cloudcompare finestructure
-    gildas itk mafft regtools sundials
-    wxpython wxwidgets
-    ```
-
+        ```
+        attrdict3 cloudcompare finestructure gildas
+        mafft regtools rsem sundials wxpython
+        ```
+- intel/2023.1, 2025.0
+    - Non-MPI
+        ```
+        superlu_mt 
+        ```
+    - MPI
+        ```
+        abinit cesm
+        ```
 
 If you have any questions about the maintenance, please [contact our user services team](https://www.rc.virginia.edu/support/). 
