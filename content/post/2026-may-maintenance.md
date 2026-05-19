@@ -54,7 +54,7 @@ To improve access to GPU resources, RC previously introduced the gpu-mig partiti
 
 ### System
 
-The NVIDIA driver will be upgraded to 595.45.04 to support CUDA 13.1. See section on NVHPC below.
+The NVIDIA driver will be upgraded to 595.71.05 to support CUDA 13.2. See section on NVHPC below.
 
 Open OnDemand will be ugpraded to 4.1.4.
 
